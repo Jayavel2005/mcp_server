@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { getWeather } from "../services/WeatherService";
 import { CityNotFoundError } from "../Errors/WeatherError";
+import { text } from "node:stream/consumers";
 
 const server = new McpServer({
   name: "Weather Tool",
@@ -79,6 +80,31 @@ server.registerTool(
         ],
       };
     }
+  },
+);
+
+server.registerPrompt(
+  "weather-summary",
+  {
+    title: "Weather Summary",
+    description: "Creates instructions for presenting weather information.",
+    argsSchema: z.object({
+      city: z.string(),
+    }),
+  },
+  async ({ city }) => {
+    return {
+      messages: [
+        {
+          role: "user" as const,
+          content: {
+            type: "text" as const,
+            text: `Please summarize the weather for ${city} in a friendly way. Mention the temperature, humidity, wind speed, and provide suitable clothing advice.`,
+          },
+        },
+        
+      ],
+    };
   },
 );
 
